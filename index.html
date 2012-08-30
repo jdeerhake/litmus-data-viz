@@ -6,11 +6,17 @@
 </head>
 <body>
   <input type="file" id="files" name="files[]" multiple />
-  <output id="list"></output>
+  <input type="radio" name="format" value="columns" checked>  <label>Columns</label>
+  <input type="radio" name="format" value="rows">  <label>Rows</label>
+  <pre id="list"></pre>
 
   <script>
     function handleResults( array ) {
-      jQuery( "<pre>" ).html( JSON.stringify( array ) ).appendTo( "body" );
+      console.log(array);
+
+      jQuery("#list").html(
+        JSON.stringify( array ).replace( /\[/g, "\n[" ).replace( /\],/g, "],\n" )
+      );
     }
 
     jQuery("#files").on("change", function( ev ) {
@@ -20,10 +26,11 @@
         var reader = new FileReader();
 
         reader.onload = function( ev ) {
-          console.log(" ok ");
-          window.csv2json( ev.target.result, {
-            cb : handleResults
-          });
+          handleResults( window.csv2json( ev.target.result, {
+            cb : handleResults,
+            arrangement : jQuery("[name='format']:checked").val(),
+            firstRowHeaders : true
+          }) );
         };
 
         reader.readAsText( file );

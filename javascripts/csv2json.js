@@ -1,53 +1,58 @@
-(function() {
-  var LINE_SPLIT_REGEX = /\n\r|\r\n|\n|\r/;
+(function( window, undefined ) {
+  var LINE_SPLIT_REGEX = /\n\r|\r\n|\n|\r/,
+    settings;
 
   function csv2json( csv, options ) {
     options.arrangement = options.arrangement || "rows";
-    options.order = options.order || "flexible";
 
+    settings = options;
+    console.log(options.arrangement)
     if( options.arrangement === "rows" ) {
-      if( options.order === "flexible" ) {
-        parseRowsAsync( csv, options.cb );
-      } else {
-        return parseRows( csv );
-      }
+      return parseRows( csv );
+    } else {
+      return parseColumns( csv );
     }
   }
 
-  function parseRowsAsync( csv, cb ) {
-    var rows = csv.split(LINE_SPLIT_REGEX),
-      parsedRows = [],
-      stop = rows.length;
+  function row2array( row ) {
+    var arr = row.split( "," );
 
-    function collectRow( row ) {
-      parsedRows.push( row );
-
-      var len = parsedRows.length;
-
-      if( len % 100 === 0 ) { console.log( len ); }
-
-      if( len === stop ) {
-        cb( parsedRows );
-      }
+    if( arr.length === 1 && arr[0] === "" ) {
+      return [];
     }
 
-    rows.forEach( row2array.bind( this, collectRow ) );
+    return arr;
   }
 
   function parseRows( csv ) {
+    var rows = csv.split( LINE_SPLIT_REGEX );
 
+    return rows.map( row2array );
   }
 
-  function row2array( cb, row ) {
-    var arr = row.split( "," );
+  function parseColumns( csv ) {
+    var rows = csv.split( LINE_SPLIT_REGEX ),
+      columns = [];
 
-    if( cb ) {
-      cb( arr );
-    } else {
-      return arr;
+    function collectColumns( rowString, rowIndex ) {
+      var row = row2array( rowString );
+
+      row.forEach(function( val, colIndex ) {
+        columns[ colIndex ] = columns[ colIndex ] || [];
+
+        columns[ colIndex ][ rowIndex ] = val;
+      });
     }
+
+    if( settings.firstRowHeaders ) {
+      columns.headers = row2array( rows.shift() );
+    }
+
+    rows.forEach( collectColumns );
+
+    return columns;
   }
 
   window.csv2json = csv2json;
 
-}());
+}( window ));
