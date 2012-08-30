@@ -3,20 +3,38 @@
 <head>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
   <script src="./javascripts/csv2json.js"></script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script type="text/javascript">
+    google.load("visualization", "1", {packages:["corechart"]});
+  </script>
+
 </head>
 <body>
   <input type="file" id="files" name="files[]" multiple />
-  <input type="radio" name="format" value="columns" checked>  <label>Columns</label>
-  <input type="radio" name="format" value="rows">  <label>Rows</label>
-  <pre id="list"></pre>
+  <input type="radio" name="format" value="columns">  <label>Columns</label>
+  <input type="radio" name="format" value="rows" checked>  <label>Rows</label>
+
+  <div id="chart_div" style="width: 100%; height: 1000px;"></div>
 
   <script>
-    function handleResults( array ) {
-      console.log(array);
 
-      jQuery("#list").html(
-        JSON.stringify( array ).replace( /\[/g, "\n[" ).replace( /\],/g, "],\n" )
-      );
+    var result;
+    function handleResults( array ) {
+      result = array;
+
+      var googleData = array.map(function( item ) {
+        return [ item[1], parseInt(item[0], 10) ];
+      });
+
+      var data = google.visualization.arrayToDataTable( googleData );
+
+      var options = {
+        title: 'Email opens by client'
+      };
+
+      var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+
     }
 
     jQuery("#files").on("change", function( ev ) {
@@ -27,7 +45,6 @@
 
         reader.onload = function( ev ) {
           handleResults( window.csv2json( ev.target.result, {
-            cb : handleResults,
             arrangement : jQuery("[name='format']:checked").val(),
             firstRowHeaders : true
           }) );
