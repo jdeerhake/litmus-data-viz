@@ -10,7 +10,7 @@
 
   <script>
     function handleResults( array ) {
-      jQuery( "<ore>" ).html( JSON.stringify( array ) ).appendTo( "body" );
+      jQuery( "<pre>" ).html( JSON.stringify( array ) ).appendTo( "body" );
     }
 
     jQuery("#files").on("change", function( ev ) {
