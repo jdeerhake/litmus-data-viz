@@ -23,7 +23,7 @@
       result = array;
 
       var googleData = array.map(function( item ) {
-        return [ item[1], parseInt(item[0], 10) ];
+        return [ item[1] + " (" + item[2] + ")", parseInt(item[0], 10) ];
       });
 
       var data = google.visualization.arrayToDataTable( googleData );
