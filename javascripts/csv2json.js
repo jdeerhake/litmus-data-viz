@@ -6,7 +6,7 @@
     options.arrangement = options.arrangement || "rows";
 
     settings = options;
-    console.log(options.arrangement)
+
     if( options.arrangement === "rows" ) {
       return parseRows( csv );
     } else {
